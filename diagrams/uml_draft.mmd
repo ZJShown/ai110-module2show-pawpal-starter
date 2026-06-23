@@ -1,0 +1,39 @@
+classDiagram
+    class Owner {
+        +name
+        +pet
+        +preferences
+        +add_pet()
+        +delete_pet()
+        +update_preference()
+        +get_name()
+    }
+
+    class Pet {
+        +name
+        +type
+        +daily_plan
+        +get_name()
+        +get_type()
+        +get_daily_plan()
+        +generate()
+    }
+
+    class Task {
+        +priority
+        +duration
+        +update_priority()
+        +get_duration()
+    }
+
+    class DailyPlan {
+        +tasks
+        +time_available
+        +add_task()
+        +delete_task()
+        +get_time_available()
+    }
+
+    Owner --> Pet
+    Pet --> DailyPlan
+    DailyPlan --> Task

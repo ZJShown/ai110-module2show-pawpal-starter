@@ -2,10 +2,21 @@
 
 ## 1. System Design
 
+Three core actions:
+User can register pets
+Generate tasks for pet
+Track task progress
+
+
 **a. Initial design**
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+Four classes: Owner, Pet, Task, DailyPlan
+Owner needs name, pet, preferences. Should be able to add pet, delete pet, update preference, and get name.
+Pet need name, type, DailyPlan. Should be able to get name, get type, and retrieve DailyPlan/generate as well
+DailyPlan need tasks, time_available. Should be able to add tasks, delete tasks, get time available.
+Task need priority, duration. Should be able to update priority, and get duration.
 
 **b. Design changes**
 
