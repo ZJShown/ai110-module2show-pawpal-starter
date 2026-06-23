@@ -64,17 +64,54 @@ Paste a sample of your app's CLI or Streamlit output here so a reader can see wh
 
 ```bash
 # Run the full test suite:
-pytest
+python -m pytest
+python -m pytest tests/test_pawpal.py -v
 
 # Run with coverage:
-pytest --cov
+python -m pytest --cov
 ```
 
-Sample test output:
+### What the tests cover
+
+| Type | Tests | Description |
+|---|---|---|
+| **Sorting** | 3 | Verifies `sort_by_time()` produces strict HH:MM chronological order; confirms `generate()` re-sorts by priority regardless of insertion order |
+| **Recurrence** | 4 | Confirms `complete_task()` creates a next-occurrence copy with `due_date + 1 day` (daily) or `+ 7 days` (weekly); confirms `once` tasks produce no new copy; confirms completed tasks are excluded from the next schedule |
+| **Conflict detection** | 5 | Checks that same-start and partial-overlap times are flagged; verifies back-to-back tasks produce no false positives; tests cross-pet conflict detection and confirms non-overlapping pets are clean |
+| **Baseline** | 2 | `mark_complete()` sets `completed=True`; `add_task()` increments the pet's task count |
+
+### Test run output
 
 ```
-# Paste your pytest output here
+============================= test session starts ==============================
+platform darwin -- Python 3.13.5, pytest-9.0.3, pluggy-1.5.0
+rootdir: /ai110-module2show-pawpal-starter
+collected 14 items
+
+tests/test_pawpal.py::test_mark_complete_changes_status PASSED           [  7%]
+tests/test_pawpal.py::test_add_task_increases_pet_task_count PASSED      [ 14%]
+tests/test_pawpal.py::test_sort_by_time_orders_slots_chronologically PASSED [ 21%]
+tests/test_pawpal.py::test_sort_by_time_on_manually_reversed_slots PASSED [ 28%]
+tests/test_pawpal.py::test_generate_priority_sort_high_before_low PASSED [ 35%]
+tests/test_pawpal.py::test_complete_daily_task_creates_next_occurrence PASSED [ 42%]
+tests/test_pawpal.py::test_complete_weekly_task_creates_next_occurrence PASSED [ 50%]
+tests/test_pawpal.py::test_complete_once_task_does_not_create_new_task PASSED [ 57%]
+tests/test_pawpal.py::test_completed_daily_task_excluded_from_next_schedule PASSED [ 64%]
+tests/test_pawpal.py::test_detect_conflicts_flags_exact_same_start PASSED [ 71%]
+tests/test_pawpal.py::test_detect_conflicts_flags_partial_overlap PASSED [ 78%]
+tests/test_pawpal.py::test_detect_conflicts_no_false_positives PASSED    [ 85%]
+tests/test_pawpal.py::test_detect_cross_pet_conflicts_flags_overlapping_pets PASSED [ 92%]
+tests/test_pawpal.py::test_detect_cross_pet_no_conflict_when_sequential PASSED [100%]
+
+============================== 14 passed in 0.04s ==============================
 ```
+
+### Confidence level: (4/5)
+
+The core scheduling behaviours are fully covered and all 14 tests pass. The rating stops short of 5 stars because:
+
+- The `weekly` recurrence logic (`task.task_type == day_of_week`) is a rough proxy and has no test for mismatched values
+- The activity level multiplier and the 5-minute buffer are exercised indirectly through `generate()` but have no dedicated boundary tests
 
 ## 📐 Smarter Scheduling
 
