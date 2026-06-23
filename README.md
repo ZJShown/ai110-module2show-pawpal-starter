@@ -78,14 +78,18 @@ Sample test output:
 
 ## 📐 Smarter Scheduling
 
-> Fill in once you've implemented scheduling logic.
-
 | Feature | Method(s) | Notes |
 |---------|-----------|-------|
-| Task sorting | | e.g., by priority, duration |
-| Filtering | | e.g., skip tasks if time runs out |
-| Conflict handling | | e.g., overlapping time slots |
-| Recurring tasks | | e.g., daily vs. weekly |
+| **Sort by priority** | `Scheduler.generate()` | Pending tasks are sorted by `(priority, duration)` before time slots are assigned. High-priority tasks always schedule first; within the same priority, shorter tasks win the tiebreak to maximise the number that fit. |
+| **Sort by time** | `Scheduler.sort_by_time()` | Sorts `scheduled_tasks` in place by `"HH:MM"` string using `sorted()` with a lambda key. Zero-padded fixed-width strings compare correctly as plain strings — no `datetime` parsing needed. |
+| **Filter scheduled tasks by status** | `Scheduler.filter_tasks(completed=)` | Returns a filtered copy of `scheduled_tasks`. `completed=False` shows only pending tasks; `completed=True` shows only finished ones; `completed=None` returns all. |
+| **Filter tasks by pet or status** | `Owner.filter_tasks(pet_name=, completed=)` | Cross-pet filter on raw task objects. Both parameters are optional and combinable — e.g. `owner.filter_tasks(pet_name="Biscuit", completed=False)` returns only Biscuit's incomplete tasks. |
+| **Same-pet conflict detection** | `Scheduler.detect_conflicts()` | Checks every pair of scheduled windows using the full interval overlap test (`A.start < B.end AND B.start < A.end`). Returns a list of `WARNING` strings; never raises. |
+| **Cross-pet conflict detection** | `Scheduler.detect_cross_pet_conflicts(schedulers)` | Static method that merges all pets' scheduled slots with pet labels, then flags time-window overlaps between different pets — surfacing cases where the owner is double-booked across pets. |
+| **Recurring task filtering** | `_should_include(task, day_of_week)` | `daily` tasks always included; `weekly` tasks only included when `task.task_type == day_of_week`; `once` tasks included until `mark_complete()` is called. Completed tasks are always excluded. |
+| **Recurring task auto-creation** | `Pet.complete_task(task, reference_date=)` | When a `daily` or `weekly` task is marked complete, automatically creates a next-occurrence copy with `due_date = reference_date + timedelta(days=1)` or `timedelta(weeks=1)`. Returns the new `Task`; returns `None` for `once` tasks. |
+| **Activity level scaling** | `Scheduler.generate()` | Multiplies `time_available` by `ACTIVITY_MULTIPLIERS` (`high=1.0`, `medium=0.75`, `low=0.5`) to get `effective_time`. A low-activity owner with 120 min available is treated as having 60 min. |
+| **Skipped task tracking** | `Scheduler.generate()` / `Scheduler.display()` | Tasks that don't fit go to `self.skipped_tasks` instead of being silently dropped. `display()` appends a footer listing them; the Streamlit UI surfaces them in a `st.warning()` block. |
 
 ## 📸 Demo Walkthrough
 

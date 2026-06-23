@@ -89,10 +89,23 @@ classDiagram
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
+1. **Time budget** — `Scheduler(time_available)` sets the total minutes available for the day. The scheduler tracks `remaining` minutes and stops adding tasks once a task's duration (plus a 5-minute buffer) would exceed what's left. This is the hard outer limit; everything else operates within it.
+
+2. **Task priority** — each task is tagged `high`, `medium`, or `low`. Tasks are sorted by priority before any time slots are assigned, so high-priority tasks (feeding, meds) are always scheduled first and low-priority ones (enrichment) are the first to be dropped when time runs short.
+
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+
+The scheduler uses a **greedy priority-first strategy**: it sorts all pending tasks by priority (then by shortest duration as a tiebreaker) and slots them one by one until time runs out. Any task that does not fit is skipped entirely — the scheduler never goes back to swap in a shorter lower-priority task that might have fit in the remaining gap.
+
+For example, if 10 minutes remain and the next task takes 15 minutes, the scheduler skips it and also skips every task after it, even if the very next task is only 5 minutes long and would fit.
+
+This tradeoff is reasonable for a daily pet care context because:
+- **Priority is the primary constraint.** An owner who cannot finish everything should drop low-priority enrichment tasks, not squeeze them in ahead of high-priority meds or feeding.
+- **Simplicity matters.** A backtracking or knapsack algorithm would find a globally optimal fit, but it is significantly more complex to implement, test, and explain. For a small number of daily tasks (typically under 10), the greedy approach produces a good-enough plan with predictable, easy-to-trace behaviour.
+- **The tiebreaker partially compensates.** Sorting same-priority tasks by shortest duration first ("shortest job first") naturally packs more tasks into the available window, recovering much of the efficiency lost by not backtracking.
 
 ---
 
