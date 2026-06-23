@@ -15,13 +15,70 @@ Track task progress
 Four classes: Owner, Pet, Task, DailyPlan
 Owner needs name, pet, preferences. Should be able to add pet, delete pet, update preference, and get name.
 Pet need name, type, DailyPlan. Should be able to get name, get type, and retrieve DailyPlan/generate as well
-DailyPlan need tasks, time_available. Should be able to add tasks, delete tasks, get time available.
+DailyPlan/Scheduler need tasks, time_available. Should be able to add tasks, delete tasks, get time available.
 Task need priority, duration. Should be able to update priority, and get duration.
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+Yes, the design changed significantly after reviewing the initial skeleton for missing relationships and logic gaps.
+
+1. **Tasks moved from `Scheduler` to `Pet`.** In the initial design, `Pet` held a reference to `Scheduler` and tasks only existed inside the plan. This meant there was no way to define or store tasks for a pet before scheduling. The revised design gives `Pet` a `list tasks` with `add_task()`, so tasks are defined on the pet first and the scheduler selects from them.
+
+2. **`generate()` moved from `Pet` to `Scheduler`.** The README requires scheduling to consider both pet tasks and owner preferences (time available, wake time, activity level). `Pet.generate()` had no reference to `Owner`, making it impossible to apply those constraints. Moving `generate(pet, owner)` to `Scheduler` gives it access to both, which matches the README's requirement to produce a plan based on constraints and priorities.
+
+3. **Owner preferences made explicit.** The initial `Owner` had a generic `preferences` field. The revised design breaks this into concrete attributes — `wake_time` and `activity_level` — which are the specific inputs the scheduler needs to produce a time-slotted plan like the sample output in the README (`08:00 — Morning walk`).
+
+4. **`Task` gained `name`, `task_type`, and `recurring`.** The README lists task types (walks, feeding, meds, enrichment, grooming) and mentions daily vs. weekly recurrence in the scheduling table. These fields were missing from the initial design and are needed to implement filtering and recurring task logic.
+
+```mermaid
+classDiagram
+    class Owner {
+        +str name
+        +str wake_time
+        +str activity_level
+        +list pets
+        +add_pet(pet)
+        +delete_pet(pet)
+        +update_preference(key, value)
+        +get_name()
+    }
+
+    class Pet {
+        +str name
+        +str breed
+        +list tasks
+        +add_task(task)
+        +get_name()
+        +get_breed()
+    }
+
+    class Task {
+        +str name
+        +str task_type
+        +int duration
+        +str priority
+        +str recurring
+        +update_priority(priority)
+        +get_duration()
+    }
+
+    class Scheduler {
+        +date date
+        +int time_available
+        +list scheduled_tasks
+        +add_task(task)
+        +delete_task(task)
+        +get_time_available()
+        +generate(pet, owner)
+        +display()
+    }
+
+    Owner "1" --> "1..*" Pet : owns
+    Pet "1" --> "0..*" Task : has
+    Scheduler "1" --> "0..*" Task : schedules
+    Scheduler --> Pet : generates plan for
+    Scheduler --> Owner : uses preferences of
+```
 
 ---
 
