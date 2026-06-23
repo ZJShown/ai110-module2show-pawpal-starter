@@ -1,0 +1,66 @@
+classDiagram
+    %% Updated to match final pawpal_system.py implementation.
+    %% Key changes from uml_draft.mmd:
+    %%   - Owner.preferences split into wake_time + activity_level; added filter_tasks()
+    %%   - Pet.type → breed; Pet.daily_plan removed; complete_task() added
+    %%   - Task gained name, task_type, recurring, completed, due_date, mark_complete()
+    %%   - DailyPlan renamed Scheduler with a fully new method set
+    %%   - generate() moved from Pet to Scheduler (needs both Pet and Owner)
+    %%   - Relationships now show cardinality and direction labels
+    %% Note: module-level _should_include(task, day_of_week) is called by
+    %%       Scheduler.generate() to filter tasks before scheduling.
+
+    class Task {
+        +str name
+        +str task_type
+        +int duration
+        +str priority
+        +str recurring
+        +bool completed
+        +date due_date
+        +update_priority(priority) None
+        +get_duration() int
+        +mark_complete() None
+    }
+
+    class Pet {
+        +str name
+        +str breed
+        +list~Task~ tasks
+        +add_task(task) None
+        +get_name() str
+        +get_breed() str
+        +get_tasks() list~Task~
+        +complete_task(task, reference_date) Task
+    }
+
+    class Owner {
+        +str name
+        +str wake_time
+        +str activity_level
+        +list~Pet~ pets
+        +add_pet(pet) None
+        +delete_pet(pet) None
+        +update_preference(key, value) None
+        +get_name() str
+        +get_all_tasks() list~Task~
+        +filter_tasks(pet_name, completed) list~Task~
+    }
+
+    class Scheduler {
+        +int time_available
+        +list scheduled_tasks
+        +list skipped_tasks
+        +generate(pet, owner, day_of_week) None
+        +get_time_available() int
+        +sort_by_time() None
+        +filter_tasks(completed) list
+        +detect_conflicts() list~str~
+        +detect_cross_pet_conflicts(schedulers)$ list~str~
+        +display() str
+    }
+
+    Owner "1" --> "0..*" Pet : owns
+    Pet "1" --> "0..*" Task : has
+    Scheduler --> Pet : generates plan for
+    Scheduler --> Owner : uses preferences of

@@ -132,10 +132,14 @@ The core scheduling behaviours are fully covered and all 14 tests pass. The rati
 
 Describe your app in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+1. **Set up the owner.** Enter a name, wake time, and activity level (high/medium/low), then click **Save owner**. Activity level scales the effective time budget — a medium-activity owner with 60 minutes available is treated as having 45.
+
+2. **Add a pet.** Enter a pet name and select a breed, then click **Add pet**. The pet appears in every dropdown across the app.
+
+3. **Add tasks.** Select a pet, fill in the task form (title, type, duration, priority, recurrence), and click **Add task**. Repeat for as many tasks as needed; a filter radio lets you view All / Incomplete / Complete tasks.
+
+4. **Generate a schedule.** Choose a pet, set available minutes, pick the day of the week, and click **Generate schedule**. The scheduler slots high-priority tasks first with a 5-minute buffer between them; tasks that don't fit appear in a "Skipped" expander.
+
+5. **Mark tasks done and watch conflicts.** Click **Done** on any task to complete it; daily/weekly tasks auto-create the next occurrence. If two pets have overlapping task times, cross-pet conflict banners appear showing exactly which windows double-book the owner.
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->

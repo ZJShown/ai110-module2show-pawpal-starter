@@ -115,11 +115,15 @@ This tradeoff is reasonable for a daily pet care context because:
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
 - What kinds of prompts or questions were most helpful?
+I utilized AI to help me construct a detail plan of the implementation. By asking the AI to read the README.md file and ask it to write up a plan for me.
+I would use prompt like "Read the README.md file and confirm that I'm currently doing the implementation correctly. If not, suggest me how I should approach"
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+I had to reject a few time where I wanted AI to generate a skeleton but it just provides the full code without explaining.
+I double checked with the output and the functionality to make the code AI suggested are working. However, it seems like there's still some problems within the implementation.
 
 ---
 
@@ -127,13 +131,16 @@ This tradeoff is reasonable for a daily pet care context because:
 
 **a. What you tested**
 
-- What behaviors did you test?
-- Why were these tests important?
+14 tests across four categories:
+
+- **Baseline (2):** `mark_complete()` flips `completed` to `True`; `add_task()` increments the pet's task count. These guard the simplest contracts that everything else depends on.
+- **Sorting (3):** `sort_by_time()` produces strict chronological order on both generated and manually reversed slots; `generate()` re-sorts by priority regardless of insertion order. Without these, the schedule table could display tasks out of sequence.
+- **Recurrence (4):** `complete_task()` creates a next occurrence with the correct due date for `daily` (+1 day) and `weekly` (+7 days) tasks, returns `None` for `once` tasks, and excludes the completed original from the next generated schedule. Recurrence is the trickiest stateful behavior, so it needed dedicated cases.
+- **Conflict detection (5):** Same-start and partial-overlap windows are flagged; back-to-back tasks produce no false positives; cross-pet overlaps are detected; non-overlapping pets are clean. Conflict detection is a user-facing safety feature — a false negative would silently double-book the owner.
 
 **b. Confidence**
 
-- How confident are you that your scheduler works correctly?
-- What edge cases would you test next if you had more time?
+Confidence level: **4 / 5.** The core behaviors are fully covered and all 14 tests pass cleanly. Two gaps remain: the `weekly` recurrence filter (`task.task_type == day_of_week`) has no test for a mismatch, so a typo in `task_type` would silently exclude the task; and the activity-level multiplier and 5-minute buffer are exercised only indirectly through `generate()` rather than with dedicated boundary tests.
 
 ---
 
@@ -143,10 +150,15 @@ This tradeoff is reasonable for a daily pet care context because:
 
 - What part of this project are you most satisfied with?
 
+The AI was able to provide suggestions for implementation throughout. Most of it make sense in terms of functionalities and relationships. Few wasn't very good until I give it specific instructions.
+
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+I think getting the functions correctly really affects how the rest of the part works. I would probably take more time on the classes and methods to make sure the functionalities and relationships connected well so I don't have to fix later.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+AI can be useful but it might not do things in the way you want. You will need to give it specific instructions to make sure it follows.
